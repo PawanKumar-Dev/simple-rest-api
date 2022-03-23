@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather API</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+      .card {
+        margin: 100px auto 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card" style="width: 18rem;">
+    <img src="weather.jpg" class="card-img-top">
+    <div class="card-body">
+      <h5 class="card-title">City: <span class="city"></span></h5>
+    </div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">Temperature: <span class="temp"></span><span class="badge bg-success countrycode"></span></li>
+      <li class="list-group-item">Condition: <span class="condition text-capitalize"></span></li>
+      <li class="list-group-item">Humidity: <span class="humid text-capitalize"></span></li>
+    </ul>
+  </div>
+
+  <!-- JS Files Here -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $.ajax({
+        url: "https://api.openweathermap.org/data/2.5/weather?q=Delhi&appid=f7143c60ab72539e8fd07795ff0cc5bc&units=metric",
+        type: "GET",
+        dataType: "JSON",
+        success: function (data) {
+          // console.log(data);
+          $(".city").html(data.name);
+          $(".countrycode").html(data.sys.country);
+          $(".temp").html(data.main.temp + " Celsius");
+          $(".condition").html(data.weather[0].description);
+          $(".humid").html(data.main.humidity + " %");
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
