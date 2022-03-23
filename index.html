@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <title>Rest Api CRUD</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-warning">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="">Rest Api CRUD</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+        aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav me-auto"></ul>
+
+        <form class="d-flex">
+          <input class="form-control me-sm-2" type="text" id="searchdata" placeholder="Search">
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <div class="alert alert-success location" role="alert" id="success">Success Alert!</div>
+  <div class="alert alert-danger location" role="alert" id="error">Error Alert!</div>
+
+  <div class="container">
+    <h1 class="text-center mt-3">Rest Api CRUD</h1>
+
+    <div class="add mt-2">
+      <form id="addform">
+        <div class="row">
+          <div class="col-md-3">Name: <input type="text" class="form-control form-control-sm" id="add-name" name="sname"></div>
+          <div class="col-md-3">Age: <input type="text" class="form-control form-control-sm" id="add-age" name="sage"></div>
+          <div class="col-md-3">City: <input type="text" class="form-control form-control-sm" id="add-city" name="scity"></div>
+          <div class="col-md-3"><button class="btn btn-sm btn-success mt-4" type="submit" id="save">Save</button></div>
+        </div>
+      </form>
+    </div>
+
+    <table class="table table-hover table-light text-center mt-3">
+      <thead>
+        <tr>
+          <th scope="col">Id</th>
+          <th scope="col">Name</th>
+          <th scope="col">Age</th>
+          <th scope="col">City</th>
+          <th scope="col" colspan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody id="table-content"></tbody>
+    </table>
+
+    <!-- Modal -->
+    <div id="modal" class="pop-modal">
+      <h4 class="text-center">Update</h4>
+      <form id="updateForm">
+        Name: <input type="text" class="form-control" id="edit-name" name="sname">
+        Age: <input type="text" class="form-control mt-2" id="edit-age" name="sage">
+        City: <input type="text" class="form-control mt-2" id="edit-city" name="scity">
+        <input type="hidden" class="form-control mt-2" id="edit-id" name="sid">
+        <br>
+        <button class="btn btn-success float-start" type="button" id="update">Update</button>
+        <button class="btn btn-sm btn-danger float-end" id="close" type="button">Close</button>
+      </form>
+    </div>
+    <!-- Modal -->
+
+  </div>
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function () {
+
+      $("#success").hide();
+      $("#error").hide();
+
+      loadData();
+
+      // Fetch All Records
+      function loadData() {
+        $("#table-content").html("");
+        $.ajax({
+          url: "http://localhost/rest_api/api_fetch_all.php",
+          type: "GET",
+          success: function (data) {
+            if (data.status == false) {
+              $("#table-content").append("<tr><td scope='row' colspan='6'>" + data.msg + "</td></tr>");
+            } else {
+              $.each(data, function (key, value) {
+                $("#table-content").append(
+                  '<tr>' +
+                  '<th scope="row">' + value.id + '.</th>' +
+                  '<td>' + value.name + '</td>' +
+                  '<td>' + value.age + '</td>' +
+                  '<td>' + value.city + '</td>' +
+                  '<td><button class="btn btn-primary edit-btn" data-eid="'+ value.id + '">Edit</button></td>' +
+                  '<td><button class="btn btn-danger delete-btn" data-id="'+ value.id + '">Delete</button></td>' +
+                  '</tr>');
+              });
+            }
+          }
+        });
+      }
+
+      // Insert New Data
+      $("#save").on("click", function(e){
+        e.preventDefault();
+        array = $("#addform").serializeArray();
+
+        // To convert our array into JS Object of key:value pair
+        var json = giveJson(array);
+
+        if (json == false) {
+          message("All Field must not be empty", false);
+        } else {
+          $.ajax({
+            url: "http://localhost/rest_api/api_insert.php",
+            type: "POST",
+            data: json,
+            success: function(data) {
+              message(data.msg, data.status);
+
+              // Need to refresh table with inserted record
+              if (data.status == true) {
+                loadData();
+                $("#addform").trigger("reset");
+              }
+            }
+          });
+        }
+      });
+
+
+
+      // Fetch single data for Edit Modal Pop up
+      $(document).on("click", ".edit-btn", function () {
+        var studentid = $(this).data("eid");
+        var obj = {sid: studentid};
+        var json = JSON.stringify(obj);
+        
+        $.ajax({
+          url: "http://localhost/rest_api/api_fetch_single.php",
+          type: "POST",
+          data: json,
+          success: function(data) {
+            $("#edit-id").val(data[0].id);
+            $("#edit-name").val(data[0].name);
+            $("#edit-age").val(data[0].age);
+            $("#edit-city").val(data[0].city);
+          }
+        });
+
+        $("#modal").show();
+      });
+
+
+      // Update Form
+      $("#update").on("click", function(e) {
+        e.preventDefault();
+
+        array = $("#updateForm").serializeArray();
+        var json = giveJson(array);
+
+        console.log(json);
+
+        if(json == false) {
+          message("All Field must not be empty", false);
+        } else {
+          $.ajax({
+            url: "http://localhost/rest_api/api_update.php",
+            type: "POST",
+            data: json,
+            success: function(data){
+              message(data.msg, data.status);
+
+              if (data.status == true) {
+                $("#modal").hide();
+                message("Data Updated", true);
+                loadData();
+              }
+            }
+          });
+        }
+
+      });
+
+
+      // Delete Data
+      $(document).on("click", ".delete-btn", function(){
+        if (confirm("Are you sure?")) {
+          var delid = $(this).data("id");
+
+          var obj = {"sid": delid };
+          var json = JSON.stringify(obj);
+
+          $.ajax({
+            url: "http://localhost/rest_api/api_delete.php",
+            type: "POST",
+            data: json,
+            success: function(data) {
+              message(data.msg, data.status);
+
+              if (data.status == true) {
+                message("Data Delted", true);
+                loadData();
+              }
+            }
+          });
+        }        
+      });
+
+      // Search
+      $("#searchdata").keyup(function() {
+        var searchvalue = $("#searchdata").val();
+        
+        var obj = { "search": searchvalue };
+        var json = JSON.stringify(obj);
+
+        $.ajax({
+          url: "http://localhost/rest_api/api_search.php",
+          type: "POST",
+          data: json,
+          success: function (data) {
+
+            $("#table-content").html("");
+
+            if (data.status == false) {
+              $("#table-content").append("<tr><td scope='row' colspan='6'>" + data.msg + "</td></tr>");
+            } else {
+              $.each(data, function (key, value) {
+                $("#table-content").append(
+                  '<tr>' +
+                  '<th scope="row">' + value.id + '.</th>' +
+                  '<td>' + value.name + '</td>' +
+                  '<td>' + value.age + '</td>' +
+                  '<td>' + value.city + '</td>' +
+                  '<td><button class="btn btn-primary edit-btn" data-eid="'+ value.id + '">Edit</button></td>' +
+                  '<td><button class="btn btn-danger delete-btn" data-id="'+ value.id + '">Delete</button></td>' +
+                  '</tr>');
+              });
+            }
+          }
+        })
+      });
+
+
+      // Close Update Modal
+      $("#close").on("click", function() {
+        $("#modal").hide();
+      });
+
+
+
+      // Message Logic
+      function message(message, status) {
+        if (status == false) {
+          $("#error").html(message).slideDown();
+          setTimeout(function() {
+            $("#error").slideUp();
+          }, 4000);
+        } else {
+          $("#success").html(message).slideDown();
+          setTimeout(function() {
+            $("#success").slideUp();
+          }, 4000);
+        }
+      }
+
+
+      // Function that converts serialized array into JS objects then into json itself
+      function giveJson(array) {
+        var obj = {};
+
+        for (var i = 0; i < array.length; i++) {
+          if(array[i].value == '') {
+            return false;
+          }
+          obj[array[i].name] = array[i].value;
+        }
+        var json = JSON.stringify(obj);
+        return json;
+      }
+
+
+
+      
+    });
+  </script>
+</body>
+
+</html>
