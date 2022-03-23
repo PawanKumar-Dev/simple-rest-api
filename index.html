@@ -19,7 +19,11 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarColor01">
-        <ul class="navbar-nav me-auto"></ul>
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="covid.html">Covid Api</a>
+            </li>
+        </ul>
 
         <form class="d-flex">
           <input class="form-control me-sm-2" type="text" id="searchdata" placeholder="Search">
@@ -89,7 +93,7 @@
       function loadData() {
         $("#table-content").html("");
         $.ajax({
-          url: "http://localhost/rest_api/api_fetch_all.php",
+          url: "http://simplerestapi.devspecial.online/api_fetch_all.php",
           type: "GET",
           success: function (data) {
             if (data.status == false) {
@@ -123,7 +127,7 @@
           message("All Field must not be empty", false);
         } else {
           $.ajax({
-            url: "http://localhost/rest_api/api_insert.php",
+            url: "http://simplerestapi.devspecial.online/api_insert.php",
             type: "POST",
             data: json,
             success: function(data) {
@@ -148,7 +152,7 @@
         var json = JSON.stringify(obj);
         
         $.ajax({
-          url: "http://localhost/rest_api/api_fetch_single.php",
+          url: "http://simplerestapi.devspecial.online/api_fetch_single.php",
           type: "POST",
           data: json,
           success: function(data) {
@@ -176,7 +180,7 @@
           message("All Field must not be empty", false);
         } else {
           $.ajax({
-            url: "http://localhost/rest_api/api_update.php",
+            url: "http://simplerestapi.devspecial.online/api_update.php",
             type: "POST",
             data: json,
             success: function(data){
@@ -203,7 +207,7 @@
           var json = JSON.stringify(obj);
 
           $.ajax({
-            url: "http://localhost/rest_api/api_delete.php",
+            url: "http://simplerestapi.devspecial.online/api_delete.php",
             type: "POST",
             data: json,
             success: function(data) {
@@ -226,7 +230,7 @@
         var json = JSON.stringify(obj);
 
         $.ajax({
-          url: "http://localhost/rest_api/api_search.php",
+          url: "http://simplerestapi.devspecial.online/api_search.php",
           type: "POST",
           data: json,
           success: function (data) {

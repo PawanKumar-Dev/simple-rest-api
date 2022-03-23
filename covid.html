@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Covid Api</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #f3f3f3;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2 class="text-center">Covid API</h2>
+  <br>
+  <hr><br>
+
+  <div class="container">
+    <h3>Global Cases</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">New Confirmed</th>
+          <th scope="col">Total Confirmed</th>
+          <th scope="col">New Deaths</th>
+          <th scope="col">Total Deaths</th>
+          <th scope="col">New Recovered</th>
+          <th scope="col">Total Recovered</th>
+        </tr>
+      </thead>
+      <tbody id="content"></tbody>
+    </table>
+
+    <br>
+    <hr>
+    <h3>Cases in Countries</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Country</th>
+          <th scope="col">Country Code</th>
+          <th scope="col">New Confirmed</th>
+          <th scope="col">Total Confirmed</th>
+          <th scope="col">New Deaths</th>
+          <th scope="col">Total Deaths</th>
+          <th scope="col">New Recovered</th>
+          <th scope="col">Total Recovered</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody id="content-countrwise"></tbody>
+    </table>
+  </div>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function () {
+
+      $.ajax({
+        url: "https://api.covid19api.com/summary",
+        type: "GET",
+        dataType: "JSON",
+        success: function (data) {
+          // console.log(data);
+
+          // Printing Global data
+          $("#content").append(
+            "<tr>" +
+            "<td scope='col'>" + data.Global.Date + "</td>" +
+            "<td scope='col'>" + data.Global.NewConfirmed + "</td>" +
+            "<td scope='col'>" + data.Global.TotalConfirmed + "</td>" +
+            "<td scope='col'>" + data.Global.NewDeaths + "</td>" +
+            "<td scope='col'>" + data.Global.TotalDeaths + "</td>" +
+            "<td scope='col'>" + data.Global.NewRecovered + "</td>" +
+            "<td scope='col'>" + data.Global.TotalRecovered + "</td>" +
+            "</tr>"
+          );
+
+          // Printing Data with Country
+          for (var i = 0; i < data.Countries.length; i++) {
+            // console.log(data.Countries[i]);
+            
+            $("#content-countrwise").append(
+              "<tr>" +
+              "<td scope='col'>" + data.Countries[i].Country + "</td>" +
+              "<td scope='col'>" +data.Countries[i].CountryCode + "</td>" +
+              "<td scope='col'>" +data.Countries[i].NewConfirmed + "</td>" +              
+              "<td scope='col'>" +data.Countries[i].TotalConfirmed + "</td>" +
+              "<td scope='col'>" +data.Countries[i].NewDeaths + "</td>" +
+              "<td scope='col'>" +data.Countries[i].TotalDeaths + "</td>" +
+              "<td scope='col'>" +data.Countries[i].NewRecovered + "</td>" +
+              "<td scope='col'>" +data.Countries[i].TotalRecovered + "</td>" +
+              "<td scope='col'>" +data.Countries[i].Date + "</td>" +
+              "</tr>"
+            );
+          }
+
+        }
+      });
+
+    });
+  </script>
+</body>
+
+</html>
